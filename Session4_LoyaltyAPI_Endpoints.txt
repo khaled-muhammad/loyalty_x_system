@@ -1,0 +1,251 @@
+All Endpoints
+
+Base URL: http://localhost:3012/api
+
+==================================================
+AUTH
+==================================================
+
+--------------------------------------------------
+POST /auth/register
+--------------------------------------------------
+Creates a new user.
+
+Body fields:
+- username (string, required)
+- email (string, required)
+- password (string, required)
+
+Example request:
+{
+  "username": "khaledmuhmmed",
+  "email": "khaledmuhmmed01@example.com",
+  "password": "anypasswordgoesheeree"
+}
+
+Successful response (201):
+{
+  "message": "You have registered successfully!"
+}
+
+--------------------------------------------------
+POST /auth/login
+--------------------------------------------------
+Login and generate token.
+
+Body fields:
+- username (string, required)
+- password (string, required)
+
+Example request:
+{
+  "username": "khaledmuhmmed",
+  "password": "anypasswordgoesheeree"
+}
+
+Successful response (200):
+{
+  "userId": "user_123456",
+  "email": "khaledmuhmmed01@example.com",
+  "username": "khaledmuhmmed",
+  "points": 45,
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
+--------------------------------------------------
+GET /auth/me
+--------------------------------------------------
+Get authed user info.
+
+Headers:
+- Authorization: Bearer <token>
+
+Successful response (200):
+{
+  "userId": "user_123456",
+  "username": "khaledmuhmmed",
+  "email": "khaledmuhmmed01@example.com",
+  "password": "hashed_password",
+  "points": 45,
+  "totalMoneySpent": 250.50,
+  "createdAt": "2024-01-15T10:00:00Z",
+  "updatedAt": "2024-01-15T10:00:00Z"
+}
+
+==================================================
+CARD MANAGEMENT
+==================================================
+
+--------------------------------------------------
+GET /cards
+--------------------------------------------------
+Get all cards to the current authed user.
+
+Headers:
+- Authorization: Bearer <token>
+
+Successful response (200):
+[
+  {
+    "id": "card_789012",
+    "userId": "user_123456",
+    "cardNumber": "**** **** **** 1234",
+    "cardHolderName": "khaledmuhmmed01 Doe",
+    "expiryDate": "12/25",
+    "default": true,
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+]
+
+--------------------------------------------------
+POST /cards
+--------------------------------------------------
+Add new card to the current authed user.
+
+Headers:
+- Authorization: Bearer <token>
+
+Body fields:
+- cardNumber (string, required)
+- cardHolderName (string, required)
+- expiryDate (string, required)
+- cvv (string, required)
+- default (boolean, optional)
+
+Example request:
+{
+  "cardNumber": "4111111111111234",
+  "cardHolderName": "khaledmuhmmed01 Doe",
+  "expiryDate": "12/25",
+  "cvv": "123",
+  "default": false
+}
+
+Successful response (201):
+{
+  "message": "Card added successfully",
+  "card": {
+    "id": "card_789013",
+    "userId": "user_123456",
+    "cardNumber": "1234 1234 1234 1234",
+    "cardHolderName": "khaledmuhmmed01 Doe",
+    "expiryDate": "12/25",
+    "default": false,
+    "createdAt": "2024-01-15T11:00:00Z"
+  }
+}
+
+--------------------------------------------------
+DELETE /cards/:cardId
+--------------------------------------------------
+Delete a card for the current authed user.
+
+Headers:
+- Authorization: Bearer <token>
+
+Path parameters:
+- cardId (string, required)
+
+Successful response (200):
+{
+  "message": "Card deleted successfully"
+}
+
+Error response (400):
+{
+  "error": "Cannot delete default card. Set another card as default first!"
+}
+
+Error response (404):
+{
+  "error": "Card not found!"
+}
+
+--------------------------------------------------
+PUT /cards/:cardId
+--------------------------------------------------
+Set a specific card as default for the current authed user.
+
+Headers:
+- Authorization: Bearer <token>
+
+Path parameters:
+- cardId (string, required)
+
+Successful response (200):
+{
+  "message": "Default card set successfully"
+}
+
+==================================================
+ORDER MANAGEMENT
+==================================================
+
+--------------------------------------------------
+GET /orders
+--------------------------------------------------
+Get all orders of the current authed user.
+
+Headers:
+- Authorization: Bearer <token>
+
+Successful response (200):
+[
+  {
+    "id": "order_456789",
+    "userId": "user_123456",
+    "totalAmount": 200.00,
+    "status": "completed",
+    "createdAt": "2024-01-15T14:30:00Z",
+    "card": {
+      "id": "card_789012",
+      "cardNumber": "1234 1234 1234 1234",
+      "default": true
+    },
+    "loyaltyPoint": {
+      "id": "lp_111222",
+      "orderId": "order_456789",
+      "pointsEarned": 20,
+      "earnedAt": "2024-01-15T14:30:00Z"
+    }
+  }
+]
+
+--------------------------------------------------
+POST /orders
+--------------------------------------------------
+Create new order and calc loyalty points.
+
+Headers:
+- Authorization: Bearer <token>
+
+Body fields:
+- totalAmount (number, required, minimum: 1)
+
+Example request:
+{
+  "totalAmount": 200
+}
+
+Successful response (201):
+{
+  "message": "Order made successfully",
+  "data": {
+    "id": "order_456791",
+    "userId": "user_123456",
+    "totalAmount": 200.00,
+    "status": "completed",
+    "createdAt": "2024-01-15T18:20:00Z",
+    "card": {
+      "id": "card_789012",
+      "cardNumber": "1234 1234 1234 1234",
+      "default": true
+    },
+    "loyaltyPoint": {
+      "id": "lp_111224",
+      "orderId": "order_456791",
+      "pointsEarned": 20,
+      "earnedAt": "2024-01-15T18:20:00Z"
+    }
+  }
+}
