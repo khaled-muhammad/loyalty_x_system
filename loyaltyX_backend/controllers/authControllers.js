@@ -38,7 +38,8 @@ export const register = async (req, res) => {
             await User.create(user)
             res.status(201).send({ message: "You have registered successfully!" })
         }
-    } catch {
+    } catch (error) {
+        print(error)
         res.status(500).send({ error: error.message })
     }
 }
