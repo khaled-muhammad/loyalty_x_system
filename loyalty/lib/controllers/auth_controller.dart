@@ -18,23 +18,24 @@ class AuthController extends GetxController {
 
   RxBool processing = false.obs;
 
-
   Future initialize() async {
-    // if (hasInit) {
-    //   return;
-    // }
+    if (hasInit) return;
+
     _preferences = await SharedPreferences.getInstance();
 
-    if (accessToken.value != null) {
-      dio.options.headers['Authorization'] = "Bearer $accessToken";
-      await fetchUser();
-    } else if (_preferences!.containsKey('access_token')) {
-      accessToken.value = _preferences!.getString('access_token');
-      currentUser.value = User.fromJson(jsonDecode(_preferences!.getString('user')!));
-
-      dio.options.headers['Authorization'] = "Bearer $accessToken";
-
-      await fetchUser();
+    final savedToken = _preferences!.getString('access_token');
+    final savedUser = _preferences!.getString('user');
+    Get.log(savedUser.toString());
+    Get.log(savedToken.toString());
+    if (savedToken != null && savedUser != null) {
+      try {
+        accessToken.value = savedToken;
+        currentUser.value = User.fromJson(jsonDecode(savedUser));
+        dio.options.headers['Authorization'] = "Bearer ${accessToken.value}";
+        await fetchUser();
+      } catch (e) {
+        await logout();
+      }
     }
 
     hasInit = true;
@@ -51,16 +52,21 @@ class AuthController extends GetxController {
 
       currentUser.value = User.fromJson(res.data);
       accessToken.value = res.data['access_token'];
-      
-      _preferences!.setString('access_token', res.data['access_token']);
+
+      _preferences!.setString('access_token', accessToken.value!);
       _preferences!.setString('user', jsonEncode(User.toJson(currentUser.value!)));
+
+      dio.options.headers['Authorization'] = "Bearer ${accessToken.value}";
+
       await initialize();
-      
+
       try {
         Get.find<CardController>().fetchCards();
-      } catch (e) {}
+      } catch (_) {}
+
       return ResponseStatus(success: true, message: "You are logged in successfully!");
     } on DioException catch (e) {
+      print(e.response?.data);
       return ResponseStatus(
         success: false,
         message: e.response!.data['error']
@@ -72,12 +78,13 @@ class AuthController extends GetxController {
 
   Future<ResponseStatus> register({required String username, required String email, required String password}) async {
     processing.value = true;
+
     try {
       final res = await dio.post('auth/register', data: {
         "username": username,
         "email": email,
         "password": password,
-      });
+      }).timeout(const Duration(seconds: 10));
       return ResponseStatus(success: true, message: res.data['message']);
     } on DioException catch (e) {
       return ResponseStatus(
@@ -94,17 +101,19 @@ class AuthController extends GetxController {
     await _preferences!.remove('user');
     currentUser.value = null;
     accessToken.value = null;
-    try {
-      dio.options.headers.remove('Authorization');
-    } catch (e) {
-      
-    }
+    dio.options.headers.remove('Authorization');
     Get.offAllNamed('/welcome');
   }
 
   Future fetchUser() async {
-    final res = await dio.get('auth/me');
-    currentUser.value = User.fromJson(res.data);
-    _preferences!.setString('user', jsonEncode(User.toJson(currentUser.value!)));
+    Get.log("fetching user");
+    try {
+      final res = await dio.get('auth/me').timeout(const Duration(seconds: 5));
+      currentUser.value = User.fromJson(res.data);
+      _preferences!.setString('user', jsonEncode(User.toJson(currentUser.value!)));
+    } catch (_) {
+      await logout();
+    }
+    Get.log("user fetched");
   }
 }

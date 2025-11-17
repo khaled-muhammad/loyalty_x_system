@@ -7,15 +7,15 @@ import 'package:loyalty/screens/auth/register_screen.dart';
 import 'package:loyalty/screens/cards_screen.dart';
 import 'package:loyalty/screens/dashboard_screen.dart';
 import 'package:loyalty/screens/loaders/money_loader_screen.dart';
+import 'package:loyalty/screens/loaders/splash_screen.dart';
 import 'package:loyalty/screens/make_order_screen.dart';
 import 'package:loyalty/screens/payments_screen.dart';
 import 'package:loyalty/screens/welcome_screen.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   final authCtx = AuthController();
-  await authCtx.initialize();
   Get.put(authCtx, permanent: true);
 
   runApp(const MyApp());
@@ -45,6 +45,10 @@ class MyApp extends StatelessWidget {
         fontFamily: 'StackSansNotch',
       ),
       getPages: [
+        GetPage(
+          name: '/splash',
+          page: () => const SplashScreen(),
+        ),
         GetPage(
           name: '/welcome',
           page: () => const WelcomeScreen(),
@@ -81,7 +85,7 @@ class MyApp extends StatelessWidget {
           fullscreenDialog: true,
         ),
       ],
-      initialRoute: '/dashboard',
+      initialRoute: '/splash',
     );
   }
 }

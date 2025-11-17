@@ -60,6 +60,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final AuthController _authController = Get.find();
 
   @override
+  void initState() {
+    super.initState();
+    _authController.initialize();
+  }
+
+  @override
   Widget build(BuildContext context) {
     bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
 
@@ -251,13 +257,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     padding: const EdgeInsets.only(top: 20),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
-                      child: _authMode == AuthMode.login? GradientElevatedButton.icon(
+                      child: _authMode == AuthMode.login? Obx(() => GradientElevatedButton.icon(
                           label: Padding(
                             padding: const EdgeInsets.symmetric(
                               vertical: 15,
                               horizontal: 20
                             ),
-                            child: Text(
+                            child: _authController.processing.value? CircularProgressIndicator() : Text(
                               'Login',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold
@@ -268,7 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             LucideIcons.logIn,
                             color: Colors.white,
                           ),
-                          onPressed: () {
+                          onPressed: _authController.processing.value? null : () {
                             if (_formKey.currentState!.validate()) {
                               _authController.login(username: _usernameController.text, password: _passwordController.text).then((res) {
                                 if (res.success) {
@@ -315,72 +321,73 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               borderRadius: BorderRadiusGeometry.circular(12)
                             ),
                           ),
-                        ) : Hero(
+                        )) : Hero(
                         tag: 'reg-btn',
-                        child: GradientElevatedButton.icon(
-                          label: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 15,
-                              horizontal: 20
-                            ),
-                            child: Text(
-                              'Register',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold
+                        child: Obx(() => GradientElevatedButton.icon(
+                            label: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 15,
+                                horizontal: 20
+                              ),
+                              child: _authController.processing.value? CircularProgressIndicator() : Text(
+                                'Register',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold
+                                ),
                               ),
                             ),
-                          ),
-                          icon: Icon(
-                            LucideIcons.userRoundPlus,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _authController.register(username: _usernameController.text, email: _emailController.text, password: _passwordController.text).then((res) {
-                                if (res.success) {
-                                  if(mounted) {
-                                    showTopSnackBar(
-                                        Overlay.of(context),
-                                        CustomSnackBar.success(
-                                          message: res.message,
-                                        ),
-                                    );
+                            icon: Icon(
+                              LucideIcons.userRoundPlus,
+                              color: Colors.white,
+                            ),
+                            onPressed: _authController.processing.value? null : () {
+                              if (_formKey.currentState!.validate()) {
+                                _authController.register(username: _usernameController.text, email: _emailController.text, password: _passwordController.text).then((res) {
+                                  if (res.success) {
+                                    if(mounted) {
+                                      showTopSnackBar(
+                                          Overlay.of(context),
+                                          CustomSnackBar.success(
+                                            message: res.message,
+                                          ),
+                                      );
+                                    }
+                                    setState(() {
+                                      _authMode = AuthMode.login;
+                                    });
+                                  } else {
+                                    if(mounted) {
+                                      showTopSnackBar(
+                                          Overlay.of(context),
+                                          CustomSnackBar.error(
+                                            message: res.message,
+                                          ),
+                                      );
+                                    }
                                   }
-                                  setState(() {
-                                    _authMode = AuthMode.login;
-                                  });
-                                } else {
+                                }).catchError((err) {
+                                  print(err);
                                   if(mounted) {
                                     showTopSnackBar(
                                         Overlay.of(context),
                                         CustomSnackBar.error(
-                                          message: res.message,
+                                          message: "Unknown error happened!",
                                         ),
                                     );
                                   }
-                                }
-                              }).catchError((err) {
-                                print(err);
-                                if(mounted) {
-                                  showTopSnackBar(
-                                      Overlay.of(context),
-                                      CustomSnackBar.error(
-                                        message: "Unknown error happened!",
-                                      ),
-                                  );
-                                }
-                              });
-                            }
-                          },
-                          style: GradientElevatedButton.styleFrom(
-                            backgroundGradient: const LinearGradient(
-                              colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(12)
+                                });
+                              }
+                            },
+                            style: GradientElevatedButton.styleFrom(
+                              backgroundGradient: const LinearGradient(
+                                colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(12)
+                              ),
                             ),
                           ),
                         ),
