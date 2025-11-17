@@ -39,7 +39,7 @@ export const register = async (req, res) => {
             res.status(201).send({ message: "You have registered successfully!" })
         }
     } catch (error) {
-        print(error)
+        console.log(error)
         res.status(500).send({ error: error.message })
     }
 }
