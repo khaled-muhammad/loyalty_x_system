@@ -10,6 +10,7 @@ import 'package:loyalty/screens/loaders/money_loader_screen.dart';
 import 'package:loyalty/screens/loaders/splash_screen.dart';
 import 'package:loyalty/screens/make_order_screen.dart';
 import 'package:loyalty/screens/payments_screen.dart';
+import 'package:loyalty/screens/points_summary_screen.dart';
 import 'package:loyalty/screens/welcome_screen.dart';
 
 void main() {
@@ -63,6 +64,10 @@ class MyApp extends StatelessWidget {
           middlewares: [
             AuthMiddleware(),
           ]
+        ),
+        GetPage(
+          name: '/points_summary',
+          page: () => const PointsSummaryScreen(),
         ),
         GetPage(
           name: '/cards',

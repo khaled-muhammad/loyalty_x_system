@@ -32,10 +32,18 @@ class OrderController extends GetxController {
 
   Future makeOrder(double amount) async {
     try {
+      // final res = await dio.post(
+      //   'orders/',
+      //   data: {
+      //     'totalAmount': amount,
+      //   },
+      // );
+      // To follow task SPEC (Not secure but to follow exact spec)
       final res = await dio.post(
-        'orders/',
+        'loyalty/add',
         data: {
-          'totalAmount': amount,
+          'user_id': _authController.currentUser.value!.userId,
+          'order_total': amount,
         },
       );
       print(res.data);

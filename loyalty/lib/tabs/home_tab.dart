@@ -75,6 +75,23 @@ class _HomeTabState extends State<HomeTab> {
                   Column(
                     children: [
                       FilledButton(
+                        onPressed: () => Get.toNamed('/points_summary'),
+                        style: FilledButton.styleFrom(
+                          shape: CircleBorder(),
+                          padding: EdgeInsets.all(14)
+                        ),
+                        child: Icon(
+                          LucideIcons.star,
+                          size: 26,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text("Points")
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      FilledButton(
                         onPressed: () => Get.toNamed('/add_order_screen'), //makeOrderBottomSheet,
                         style: FilledButton.styleFrom(
                           shape: CircleBorder(),

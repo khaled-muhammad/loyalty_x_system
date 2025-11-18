@@ -108,7 +108,7 @@ class AuthController extends GetxController {
   Future fetchUser() async {
     Get.log("fetching user");
     try {
-      final res = await dio.get('auth/me').timeout(const Duration(seconds: 5));
+      final res = await dio.get('auth/me').timeout(const Duration(seconds: 15));
       currentUser.value = User.fromJson(res.data);
       _preferences!.setString('user', jsonEncode(User.toJson(currentUser.value!)));
     } catch (_) {
