@@ -249,3 +249,74 @@ Successful response (201):
     }
   }
 }
+
+==================================================
+LOYALTY POINTS API (Cuz required in task)
+==================================================
+
+--------------------------------------------------
+GET /api/loyalty/points
+--------------------------------------------------
+Get user total points.
+
+Headers:
+- Authorization: Bearer <token>
+
+Query Parameters:
+- None (uses authenticated user from token)
+
+Example Request:
+GET http://localhost:3012/api/loyalty/points
+Authorization: Bearer <token>
+
+Example Response (200):
+{
+  "user_id": "user_123456",
+  "total_points": 45
+}
+
+--------------------------------------------------
+POST /api/loyalty/add
+--------------------------------------------------
+Add points after order completion.
+
+Headers:
+- Authorization: Bearer <token>
+- Content-Type: application/json
+
+Body fields:
+- user_id (string, required): The ID of the user
+- order_total (number, required): The total order amount in EGP
+
+Example Request:
+POST http://localhost:3012/api/loyalty/add
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "user_id": "user_123456",
+  "order_total": 200
+}
+
+Successful response (201):
+{
+  "message": "Order made successfully",
+  "data": {
+    "id": "order_456791",
+    "userId": "user_123456",
+    "totalAmount": 200.00,
+    "status": "completed",
+    "createdAt": "2024-01-15T18:20:00Z",
+    "card": {
+      "id": "card_789012",
+      "cardNumber": "1234 1234 1234 1234",
+      "default": true
+    },
+    "loyaltyPoint": {
+      "id": "lp_111224",
+      "orderId": "order_456791",
+      "pointsEarned": 20,
+      "earnedAt": "2024-01-15T18:20:00Z"
+    }
+  }
+}
