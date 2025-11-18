@@ -111,7 +111,7 @@ coverage/
 
 # Session storage
 session/
-*
+
 *.session
 
 # Upload directories*
@@ -119,7 +119,7 @@ uploads*
 *.zip
 *.tar.gz
 *.rar
-
+package-lock.json
 # JWT keys and certificates
 *.pem
 *.key
