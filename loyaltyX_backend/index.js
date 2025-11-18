@@ -5,9 +5,9 @@ import cors from 'cors'
 import authRoutes from './routes/authRoutes.js'
 import cardRoutes from './routes/cardRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
+import loyaltyRoutes from './routes/loyaltyRoutes.js'
 
 import { verifyToken } from './middlewares/authJWT.js'
-import LoyaltyPoint from './models/LoyaltyPoint.js'
 
 dotenv.config()
 
@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use("/api/auth", authRoutes)
 app.use("/api/cards", verifyToken, cardRoutes)
 app.use("/api/orders", verifyToken, orderRoutes)
-app.use("/api/loyalty", verifyToken, LoyaltyPoint)
+app.use("/api/loyalty", verifyToken, loyaltyRoutes)
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port: ${port}`);
